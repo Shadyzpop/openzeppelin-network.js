@@ -10,7 +10,7 @@ let context: Web3Context;
 beforeEach((): void => {
   jest.resetAllMocks();
   jest.useFakeTimers();
-  context = new Web3Context(new Web3(localConnection).currentProvider, { timeout: 100, pollInterval: 500 });
+  context = new Web3Context(new Web3(localConnection).currentProvider as any, { timeout: 100, pollInterval: 500 });
 });
 
 describe('Web3Context', (): void => {
@@ -137,7 +137,7 @@ describe('Web3Context', (): void => {
           res(null, { result: accounts });
         });
 
-        context.lib.currentProvider.send = send;
+        (context.lib.currentProvider as any).send = send;
 
         const retVal = await context.requestAuth();
 
@@ -148,7 +148,7 @@ describe('Web3Context', (): void => {
         const send = jest.fn((req, res): void => {
           res({ error: 'nope' }, {});
         });
-        context.lib.currentProvider.send = send;
+        (context.lib.currentProvider as any).send = send;
 
         await expect(context.requestAuth()).rejects.toMatchObject({
           error: 'nope',
@@ -156,7 +156,7 @@ describe('Web3Context', (): void => {
       });
     });
     it('fails with wrong provider', async (): Promise<void> => {
-      delete context.lib.currentProvider.constructor.prototype.send;
+      delete (context.lib.currentProvider as any).constructor.prototype.send;
 
       await expect(context.requestAuth()).rejects.toMatchObject({
         message: "Web3 provider doesn't support send method",

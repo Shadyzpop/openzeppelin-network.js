@@ -14,7 +14,8 @@
     ],
     "typeRoots": [
       "./node_modules/@types",
-      "./src/typing"
+      "./src/typing",
+      "./src/global.d.ts"
     ]
   },
   "include": [

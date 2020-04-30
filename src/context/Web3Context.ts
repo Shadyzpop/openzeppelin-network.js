@@ -1,6 +1,6 @@
 import equal from 'fast-deep-equal';
 import Web3 from 'web3';
-import { Provider } from 'web3/providers';
+import { ValidProvider } from '../types';
 import { EventEmitter } from 'events';
 import timeout from '../util/timeout';
 import { GSNProvider, GSNDevProvider } from '@openzeppelin/gsn-provider';
@@ -42,7 +42,7 @@ export default class Web3Context extends EventEmitter {
 
   private pollHandle?: ReturnType<typeof setTimeout>;
 
-  public constructor(provider: Provider, options?: Partial<Web3ContextOptions>) {
+  public constructor(provider: ValidProvider, options?: Partial<Web3ContextOptions>) {
     super();
 
     const fullOptions: Web3ContextOptions = Object.assign(
@@ -132,7 +132,11 @@ export default class Web3Context extends EventEmitter {
   // https://github.com/ethereum/EIPs/blob/master/EIPS/eip-1102.md
   public async requestAuth(): Promise<string[]> {
     // Request authentication
-    if (this.lib.currentProvider.send !== undefined) {
+    if (
+      this.lib.currentProvider &&
+      !(this.lib.currentProvider instanceof String) &&
+      typeof (this.lib.currentProvider as any).send === 'function'
+    ) {
       return new Promise((resolve, reject): void => {
         const responseHandler = (error: unknown, response: { error: string; result: string[] }): void => {
           if (error || response.error) {
@@ -141,8 +145,7 @@ export default class Web3Context extends EventEmitter {
             resolve(response.result);
           }
         };
-        const send = this.lib.currentProvider.send as Function;
-        send({ method: 'eth_requestAccounts' }, responseHandler);
+        (this.lib.currentProvider as any).send({ method: 'eth_requestAccounts' }, responseHandler);
       });
     } else return Promise.reject(new Error("Web3 provider doesn't support send method"));
   }

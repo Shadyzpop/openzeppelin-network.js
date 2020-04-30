@@ -1,6 +1,6 @@
-import { Provider } from 'web3/providers';
+import { provider, HttpProvider, WebsocketProvider, IpcProvider } from 'web3-core';
 
-export default interface ExtendedProvider extends Provider {
+export default interface ExtendedProvider extends HttpProvider {
   autoRefreshOnNetworkChange?: boolean;
   isMetaMask?: boolean;
   isTrust?: boolean;
@@ -9,6 +9,6 @@ export default interface ExtendedProvider extends Provider {
   isStatus?: boolean;
   isToshi?: boolean;
   isGSNProvider?: boolean;
-  host?: string;
+  host: string;
   connection?: WebSocket;
 }

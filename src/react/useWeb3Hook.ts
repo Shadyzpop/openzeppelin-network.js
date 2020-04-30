@@ -1,12 +1,12 @@
-import { Provider } from 'web3/providers';
 // TODO: Add React and React Hook linting rules
 import { useState, useEffect } from 'react';
+import { ValidProvider } from '../types';
 import * as providers from '../context/providers';
 
 import Web3Context, { Web3ContextOptions } from '../context/Web3Context';
 import useForceUpdate from '../util/forceUpdate';
 
-export function useWeb3Context(provider: Provider, options?: Web3ContextOptions): Web3Context {
+export function useWeb3Context(provider: ValidProvider, options?: Web3ContextOptions): Web3Context {
   // TODO: update the context when the options change
   const [context] = useState((): Web3Context => new Web3Context(provider, options));
 
@@ -39,23 +39,23 @@ export function useWeb3Context(provider: Provider, options?: Web3ContextOptions)
 }
 
 export function useWeb3Injected(options?: Web3ContextOptions): Web3Context | undefined {
-  const [provider] = useState((): Provider | undefined => providers.tryInjected());
+  const [provider] = useState((): ValidProvider | undefined => providers.tryInjected());
   if (!provider) return undefined;
   return useWeb3Context(provider, options);
 }
 
 export function useWeb3Network(connection: string, options?: Web3ContextOptions): Web3Context {
-  const [provider] = useState((): Provider => providers.connection(connection));
+  const [provider] = useState((): ValidProvider => providers.connection(connection) as any);
   return useWeb3Context(provider, options);
 }
 
 export function useWeb3(fallbackConnection: string, options?: Web3ContextOptions): Web3Context {
   const [provider] = useState(
-    (): Provider => {
+    (): ValidProvider => {
       try {
         return providers.injected();
       } catch (e) {
-        return providers.connection(fallbackConnection);
+        return providers.connection(fallbackConnection) as any;
       }
     },
   );
